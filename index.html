@@ -1,161 +1,156 @@
-
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fancode By @streamxcricket</title>
+  <html lang="en">
+  <head>
+    <title>TG:@STREAMXCRICK</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="referrer" content="no-referrer"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css"/>
+    <style>
+      body {
+        background-color: #000000;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      html, body {
+        height: 100%;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+      }
+      .plyr {
+        height: 100%;
+      }
+       .telegram-button {
+            display: block;
+            margin: 20px auto;
+            padding: 6px 10px;
+            background-color: #0088cc;
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            text-decoration: none;
+            border-radius: 5px;
+            width: 140px;
+            transition: background-color 0.3s ease;
+        }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        .telegram-button:hover {
+            background-color: #006a99;
+        }
+         .tg-banner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #1da1f2, #0077b5);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
+            z-index: 1000;
+            transition: transform .3s, box-shadow .3s
+        }
 
-<style>
-body{background:#000;}
-.match-card{transition:.3s;}
-.match-card:hover{transform:scale(1.02);}
-.live-badge{animation:pulse 1s infinite;}
-@keyframes pulse{0%{opacity:1;}50%{opacity:.5;}100%{opacity:1;}}
-</style>
-</head>
+        .tg-banner:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .4)
+        }
 
-<body class="text-white p-4">
+        .tg-banner img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 50%;
+            border: 1px solid #fff
+        }
 
-<h1 class="text-center text-2xl font-bold mb-6">FANCODE BY @streamxcricket</h1>
+        .tg-banner span {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .3px
+            
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+  </head>
+  <body>
+    <video id="player" autoplay muted controls crossorigin playsinline></video>
 
-<div id="matches" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-<script>
-if (confirm("Join Our Telegram Channel @streamxcricket")) {
-  window.open("https://telegram.me/streamxcricket", '_blank');
-}
-</script>
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('player');
+        const source = "https://bpl24middleeast.akamaized.net/hls/live/2109311/j15klM//master.m3u8";
 
-const DATA_URL = "https://raw.githubusercontent.com/doctor-8trange/zyphx8/refs/heads/main/data/fancode.json";
-const PLAY_BASE = "https://streamxcrickett.netlify.app/fancodeplyr?url=";
+        if (Hls.isSupported()) {
+          const hls = new Hls({ maxMaxBufferLength: 100 });
+          hls.loadSource(source);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            const availableQualities = hls.levels.map(level => level.height);
+            const defaultQuality = availableQualities[0];
 
-const container = document.getElementById("matches");
+            const player = new Plyr(video, {
+              controls: ['play-large', 'play', 'mute', 'volume', 'settings', 'fullscreen'],
+              quality: {
+                default: defaultQuality,
+                options: availableQualities,
+                forced: true,
+                onChange: (quality) => {
+                  hls.levels.forEach((level, levelIndex) => {
+                    if (level.height === quality) {
+                      hls.currentLevel = levelIndex;
+                    }
+                  });
+                }
+              }
+            });
 
-function makeBtn(label, url){
-  const a = document.createElement("a");
-  a.href = PLAY_BASE + encodeURIComponent(url);
-  a.className="px-4 py-2 rounded-lg text-sm flex items-center justify-center shadow-md transition-all bg-red-600 hover:bg-red-700 text-white";
-  a.innerHTML=`<i class="fas fa-play mr-2"></i>${label}`;
-  return a;
-}
+            // Fullscreen change event listener for screen orientation lock
+            document.addEventListener('fullscreenchange', () => {
+              if (document.fullscreenElement) {
+                if (screen.orientation && screen.orientation.lock) {
+                  screen.orientation.lock('landscape').catch(err => {
+                    console.error('Error locking orientation:', err);
+                  });
+                }
+              } else {
+                if (screen.orientation && screen.orientation.unlock) {
+                  screen.orientation.unlock().catch(err => {
+                    console.error('Error unlocking orientation:', err);
+                  });
+                }
+              }
+            });
+          });
 
-fetch(DATA_URL)
-.then(r=>r.json())
-.then(data=>{
-
-let matches = data.matches || [];
-
-/* 🔥 SORT: STREAMING FIRST */
-matches.sort((a,b)=>{
-  const aLive = (a.streamingStatus||"").toUpperCase()==="STARTED";
-  const bLive = (b.streamingStatus||"").toUpperCase()==="STARTED";
-  return (bLive?1:0)-(aLive?1:0);
-});
-
-matches.forEach(match=>{
-
-/* 🔥 FIX: USE streamingStatus */
-const isLive = (match.streamingStatus||"").toUpperCase()==="STARTED";
-
-/* IMAGE FIX */
-const imgSrc =
-  match.image ||
-  match.image_cdn?.APP ||
-  match.image_cdn?.BG_IMAGE ||
-  "https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg";
-
-/* TEAMS */
-const t1 = match.team?.[0];
-const t2 = match.team?.[1];
-
-const teamLine = t1 && t2 ? `${t1.name} vs ${t2.name}` : match.title;
-
-/* CARD */
-const card = document.createElement("div");
-card.className = `rounded-2xl overflow-hidden shadow-xl border border-gray-800 match-card ${isLive?"ring-2 ring-red-600":""}`;
-
-/* HEADER */
-card.innerHTML = `
-<div class="relative">
-<img src="${imgSrc}" class="w-full h-52 object-cover object-top">
-${isLive ? `<span class="absolute top-3 left-3 bg-red-600 px-3 py-1 rounded-full text-xs live-badge">LIVE</span>` : ""}
-</div>
-`;
-
-/* BODY */
-const body = document.createElement("div");
-body.className = "p-4";
-
-body.innerHTML = `
-<h2 class="text-lg font-semibold">${teamLine}</h2>
-<p class="text-gray-400 text-sm">${match.tournament||""}</p>
-<p class="text-gray-500 text-xs">${match.startTime||""}</p>
-<p class="text-gray-500 text-xs">${match.language||""}</p>
-`;
-
-/* BUTTON WRAP */
-const btnWrap = document.createElement("div");
-btnWrap.className = "grid grid-cols-2 gap-2 mt-3 hidden";
-
-/* STREAM LOGIC */
-if(isLive && match.auto_streams?.length){
-
-const master = match.auto_streams[0].auto;
-const lines = master.split("\n");
-
-for(let i=0;i<lines.length;i++){
-
-if(lines[i].includes("RESOLUTION")){
-
-const res = lines[i].match(/RESOLUTION=\d+x(\d+)/);
-const quality = res ? res[1]+"p" : "Auto";
-const url = lines[i+1];
-
-btnWrap.appendChild(makeBtn(quality,url));
-
-}
-
-}
-}
-
-/* WATCH BUTTON */
-if(isLive){
-
-const toggleBtn = document.createElement("button");
-
-toggleBtn.className = "w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 py-2 rounded-lg mt-3";
-
-toggleBtn.innerHTML = `<i class="fas fa-tv mr-2"></i>Watch Now`;
-
-toggleBtn.onclick = ()=>{
-btnWrap.classList.toggle("hidden");
-};
-
-body.appendChild(toggleBtn);
-body.appendChild(btnWrap);
-
-}else{
-
-const noStream = document.createElement("div");
-noStream.className="w-full bg-gray-800 text-gray-400 py-2 rounded-lg mt-3 text-center";
-noStream.innerHTML=`<i class="fas fa-clock mr-2"></i>Upcoming`;
-body.appendChild(noStream);
-
-}
-
-/* APPEND */
-card.appendChild(body);
-container.appendChild(card);
-
-});
-
-});
-
-</script>
-
-</body>
-</html>
+          hls.attachMedia(video);
+          hls.loadSource(source);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = source;
+          new Plyr(video);
+        } else {
+          document.body.innerHTML = '<p>Your browser does not support HLS playback.</p>';
+        }
+      });
+      window.addEventListener("load", function () {
+        if (window.confirm("Join @streamxcrick for more updates?")) {
+          window.location.href = "https://t.me/+AreyM6apVFAzZDk9";
+        }
+      });
+    </script>
+    <a href="https://t.me/+AreyM6apVFAzZDk9" class="tg-banner">
+        <img src="https://i.pinimg.com/originals/31/2a/f9/312af9235aadad69655688eaee97eabf.png" alt="Telegram logo">
+        <span>
+            Join @streamxcrick
+        </span>
+    </a>
+  </body>
+  </html>
