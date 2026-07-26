@@ -1,111 +1,156 @@
-
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@streamxcricket</title>
+  <html lang="en">
+  <head>
+    <title>TG:@streamxcricket</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="referrer" content="no-referrer"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css"/>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #000; /* Pure black */
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-        }
-
-        .loading-message {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffcc00;
-            margin-bottom: 10px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            box-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00, 0 0 30px #ffcc00;
-            animation: glow 1.5s infinite alternate;
-        }
-
-        @keyframes glow {
-            0% { box-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00; }
-            100% { box-shadow: 0 0 20px #ffcc00, 0 0 30px #ffcc00; }
-        }
-
-        .player-container {
-            width: 95%;
-            max-width: 1200px;
+      body {
+        background-color: #000000;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      html, body {
+        height: 100%;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+      }
+      .plyr {
+        height: 100%;
+      }
+       .telegram-button {
+            display: block;
             margin: 20px auto;
-            box-shadow: 0 6px 25px rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            overflow: hidden;
-            background: #000;
-            position: relative;
-        }
-
-        .player-container iframe {
-            border-radius: 15px;
-            width: 100%;
-            height: 100%;
-        }
-
-        .join-telegram-container {
-            margin-top: 20px;
-        }
-
-        .join-telegram-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background-color: #008fd6;
-            border: none;
+            padding: 6px 10px;
+            background-color: #0088cc;
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            text-decoration: none;
             border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-            transition: background 0.3s ease;
+            width: 140px;
+            transition: background-color 0.3s ease;
         }
 
-        .join-telegram-btn:hover {
-            background-color: #006bb3;
+        .telegram-button:hover {
+            background-color: #006a99;
+        }
+         .tg-banner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #1da1f2, #0077b5);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
+            z-index: 1000;
+            transition: transform .3s, box-shadow .3s
+        }
+
+        .tg-banner:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .4)
+        }
+
+        .tg-banner img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 50%;
+            border: 1px solid #fff
+        }
+
+        .tg-banner span {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .3px
+            
+        }
+        a{
+            text-decoration: none;
         }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <video id="player" autoplay muted controls crossorigin playsinline></video>
 
-    <div class="loading-message">Share The Links With Your Friends</div>
-
-    <div class="player-container">
-        <div style="padding:56.25% 0 0 0;position:relative;">
-            <iframe id="contentFrame"
-                src="https://twitcasting.tv/c:arjitkumar/embeddedplayer/live?auto_play=true&default_mute=true"
-                style="position:absolute;top:0;left:0;width:100%;height:100%;"
-                frameborder="0"
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                allowfullscreen>
-            </iframe>
-        </div>
-    </div>
-
-    <div class="join-telegram-container">
-        <button class="join-telegram-btn" onclick="window.open('https://t.me/+4kgEn79ApVw3ZDY1', '_blank')">
-            Join Telegram Channel
-        </button>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
     <script>
-        if (confirm("Join Our Telegram Channel @streamxcricket") == true) {
-            window.open("https://t.me/+4kgEn79ApVw3ZDY1", '_blank');
-        }
-    </script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('player');
+        const source = "https://livecf.fancode.com/143353_hindi_hls_43373ac75166824_1ta-di_h264/720p.m3u8";
 
-</body>
-</html>
-<script src="https://recollectsideway.com/1a/88/58/1a88587e20ea1e362b615ed3b07f1287.js"></script>
+        if (Hls.isSupported()) {
+          const hls = new Hls({ maxMaxBufferLength: 100 });
+          hls.loadSource(source);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            const availableQualities = hls.levels.map(level => level.height);
+            const defaultQuality = availableQualities[0];
+
+            const player = new Plyr(video, {
+              controls: ['play-large', 'play', 'mute', 'volume', 'settings', 'fullscreen'],
+              quality: {
+                default: defaultQuality,
+                options: availableQualities,
+                forced: true,
+                onChange: (quality) => {
+                  hls.levels.forEach((level, levelIndex) => {
+                    if (level.height === quality) {
+                      hls.currentLevel = levelIndex;
+                    }
+                  });
+                }
+              }
+            });
+
+            // Fullscreen change event listener for screen orientation lock
+            document.addEventListener('fullscreenchange', () => {
+              if (document.fullscreenElement) {
+                if (screen.orientation && screen.orientation.lock) {
+                  screen.orientation.lock('landscape').catch(err => {
+                    console.error('Error locking orientation:', err);
+                  });
+                }
+              } else {
+                if (screen.orientation && screen.orientation.unlock) {
+                  screen.orientation.unlock().catch(err => {
+                    console.error('Error unlocking orientation:', err);
+                  });
+                }
+              }
+            });
+          });
+
+          hls.attachMedia(video);
+          hls.loadSource(source);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = source;
+          new Plyr(video);
+        } else {
+          document.body.innerHTML = '<p>Your browser does not support HLS playback.</p>';
+        }
+      });
+      window.addEventListener("load", function () {
+        if (window.confirm("Join @streamxcricket for more updates?")) {
+          window.location.href = "https://t.me/+4kgEn79ApVw3ZDY1";
+        }
+      });
+    </script>
+    <a href="https://t.me/+4kgEn79ApVw3ZDY1" class="tg-banner">
+        <img src="https://i.pinimg.com/originals/31/2a/f9/312af9235aadad69655688eaee97eabf.png" alt="Telegram logo">
+        <span>
+            Join @streamxcricket
+        </span>
+    </a>
+  </body>
+  </html>
